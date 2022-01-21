@@ -1,0 +1,36 @@
+{
+  "name": "ts-be-gone",
+  "author": "Chris Freeman",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.1.18",
+    "@types/fs-extra": "^9.0.13",
+    "@types/jest": "^27.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "fs-extra": "^10.0.0",
+    "jest": "^27.4.7",
+    "prettier": "^2.5.1",
+    "ts-jest": "^27.1.3",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "@babel/core": "^7.16.10",
+    "@babel/plugin-syntax-decorators": "^7.16.7",
+    "@babel/plugin-transform-typescript": "^7.16.8",
+    "eslint": "^8.7.0"
+  }
+}
