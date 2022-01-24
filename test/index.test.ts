@@ -1,15 +1,4 @@
 import removeTypes from '../src';
-import fs from 'fs-extra';
-import path from 'path';
-
-function file(filePath: string) {
-  expect(fs.pathExistsSync(filePath)).toBe(true);
-  return fs.readFileSync(filePath, { encoding: 'utf-8' });
-}
-
-function fixture(filePath: string) {
-  return file(path.join(process.cwd(), 'test/fixtures', filePath)).trimEnd();
-}
 
 describe('removeTypes', () => {
   it(`preserves default exports`, async () => {
@@ -34,30 +23,67 @@ describe('removeTypes', () => {
     expect(await removeTypes(contents)).toEqual(contents);
   });
 
-  it('works with numeric enums?', async () => {
-    const contents = `enum LogLevel {
-  ERROR,
-  WARN,
-  INFO,
-  DEBUG,
-}
+  it('handles module declarations', async () => {
+    const contents = `export default class Blah extends Service {}
 
-function f(obj: { X: number }) {
-  return obj.X;
-}
+// This comment is very important but not if you're using JS
+declare module 'foo' {
+  interface blah {
+    thing: number;
+  }
 
-f(E);
+  type bar = 'baz' | 'baq';
+}
 `;
 
-    expect(await removeTypes(contents)).toEqual('foo');
+    const expected = `export default class Blah extends Service {}\n`;
+
+    expect(await removeTypes(contents)).toEqual(expected);
   });
 
-  it('works with string enums?', async () => {
-    const contents = ``;
+  it('handles interface implements', async () => {
+    const contents = `interface ImplementMe {}
+
+class Implemented implements ImplementMe {}
+`;
+
+    const expected = `class Implemented {}\n`;
+
+    expect(await removeTypes(contents)).toEqual(expected);
+  });
+
+  it('handles type declarations', async () => {
+    const contents = `
+// this comment should disappear
+type Foo = 'foo' | 'Foo';
+
+const foo: Foo = 'foo';
+`;
+    const expected = `const foo = 'foo';
+`;
+
+    expect(await removeTypes(contents)).toEqual(expected);
+  });
+
+  it('handles class field declarations in constructor', async () => {
+    const contents = `class Foo {
+  constructor(public foo: string, private bar: number) {}
+}`;
+
+    const expected = `class Foo {
+  constructor(foo, bar) {
+    this.foo = foo;
+    this.bar = bar;
+  }
+}
+`;
+    expect(await removeTypes(contents)).toEqual(expected);
   });
 
   it('handles all the stuff', async () => {
     const contents = `import Component from 'component';
+
+type Bar = 'foo';
 
 // sick interface bro
 interface FooArgs {
@@ -65,13 +91,19 @@ interface FooArgs {
   someField: number
 }
 
+interface ImplementMe {}
+
 // this comment should stay
-export default class Foo extends Component<FooArgs> {
+export default class Foo extends Component<FooArgs> implements ImplementMe {
   // so should this one
 
   // decorators and class fields whoa
   @tracked
-  foo = 'foo';
+  foo: Bar = 'foo';
+
+  constructor(public prop1: string, private prop2: number) {
+    super();
+  }
 }
 `;
 
@@ -84,6 +116,12 @@ export default class Foo extends Component {
   // decorators and class fields whoa
   @tracked
   foo = 'foo';
+
+  constructor(prop1, prop2) {
+    super();
+    this.prop1 = prop1;
+    this.prop2 = prop2;
+  }
 }
 `;
     expect(await removeTypes(contents)).toEqual(expected);
