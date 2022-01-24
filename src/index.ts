@@ -14,7 +14,6 @@ const babelDecoratorSyntax = createConfigItem([bsd, { legacy: true }]);
 
 export default async function removeTypes(code: string) {
   code = code.replace(/\n\n+/g, '/* ___NEWLINE___ */\n');
-  console.log(code);
 
   // Babel visitor to remove leading comments
   const removeComments: VisitNodeObject<unknown, Node> = {
@@ -48,6 +47,7 @@ export default async function removeTypes(code: string) {
           TSDeclareFunction: removeComments,
           TSDeclareMethod: removeComments,
           TSImportType: removeComments,
+          TSModuleDeclaration: removeComments,
         },
       },
       babelTsTransform,
