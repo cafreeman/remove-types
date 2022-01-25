@@ -1,6 +1,6 @@
 import { transformAsync, createConfigItem } from '@babel/core';
 import type { VisitNodeObject, Node } from '@babel/traverse';
-import prettier from 'prettier';
+import * as prettier from 'prettier';
 
 // @ts-expect-error We're only importing so we can create a config item, so we don't care about types
 import bts from '@babel/plugin-transform-typescript';
