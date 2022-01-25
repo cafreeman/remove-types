@@ -1,6 +1,6 @@
 import { transformAsync, createConfigItem } from '@babel/core';
 import type { VisitNodeObject, Node } from '@babel/traverse';
-import * as prettier from 'prettier';
+import { format, Options as PrettierOptions } from 'prettier';
 
 // @ts-expect-error We're only importing so we can create a config item, so we don't care about types
 import bts from '@babel/plugin-transform-typescript';
@@ -10,10 +10,7 @@ const babelTsTransform = createConfigItem(bts);
 import bsd from '@babel/plugin-syntax-decorators';
 const babelDecoratorSyntax = createConfigItem([bsd, { legacy: true }]);
 
-export default async function removeTypes(
-  code: string,
-  prettierConfig: prettier.Options | boolean = true
-) {
+export async function removeTypes(code: string, prettierConfig: PrettierOptions | boolean = true) {
   // Babel collapses newlines all over the place, which messes with the formatting of almost any
   // code you pass to it. To preserve the formatting, we go through and mark all the empty lines
   // in the code string *before* transforming it. This allows us to go back through after the
@@ -87,7 +84,7 @@ export default async function removeTypes(
   // If `prettierConfig` is *explicitly* true (as opposed to truthy), it means the user has opted in
   // to default behavior either explicitly or implicitly. Either way, we run basic Prettier on it.
   if (prettierConfig === true) {
-    return prettier.format(fixed, standardPrettierOptions);
+    return format(fixed, standardPrettierOptions);
   }
 
   // If we've made it here, the user has passed their own Prettier options so we merge it with ours
@@ -97,5 +94,7 @@ export default async function removeTypes(
     ...prettierConfig,
   };
 
-  return prettier.format(fixed, mergedPrettierOptions);
+  return format(fixed, mergedPrettierOptions);
 }
+
+export default removeTypes;

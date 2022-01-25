@@ -5,7 +5,7 @@ A small library for transforming TypeScript code into JavaScript code in the lea
 ## Usage
 
 ```js
-import removeTypes from 'ts-be-gone';
+import { removeTypes } from 'ts-be-gone';
 
 const original = `
 type AnimalType = 'cat' | 'dog';

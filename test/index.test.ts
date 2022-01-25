@@ -1,4 +1,4 @@
-import removeTypes from '../src';
+import { removeTypes } from '../src';
 
 describe('removeTypes', () => {
   it(`preserves default exports`, async () => {

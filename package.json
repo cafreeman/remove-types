@@ -3,9 +3,8 @@
   "author": "Chris Freeman",
   "version": "0.0.0",
   "license": "MIT",
-  "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "types": "index.d.ts",
   "files": [
     "*.d.ts",
@@ -14,9 +13,10 @@
     "src"
   ],
   "scripts": {
-    "ts:es": "tsc -p ts/es.tsconfig.json",
+    "ts:cjs": "tsc -p ts/cjs.tsconfig.json",
+    "ts:esm": "tsc -p ts/esm.tsconfig.json",
     "ts:typedefs": "tsc -p ts/types.tsconfig.json && mv defs/* . && rimraf defs",
-    "ts:all": "yarn ts:es && yarn ts:typedefs",
+    "ts:all": "yarn ts:esm && yarn ts:cjs && yarn ts:typedefs",
     "build": "yarn clean && yarn ts:all",
     "clean": "rimraf ./*.d.ts ./*.d.ts.map ./dist",
     "lint": "eslint src test",
