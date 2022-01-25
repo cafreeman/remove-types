@@ -4,24 +4,33 @@ import prettier from 'prettier';
 
 // @ts-expect-error We're only importing so we can create a config item, so we don't care about types
 import bts from '@babel/plugin-transform-typescript';
-
 const babelTsTransform = createConfigItem(bts);
 
 // @ts-expect-error We're only importing so we can create a config item, so we don't care about types
 import bsd from '@babel/plugin-syntax-decorators';
-
 const babelDecoratorSyntax = createConfigItem([bsd, { legacy: true }]);
 
-export default async function removeTypes(code: string) {
+export default async function removeTypes(
+  code: string,
+  prettierConfig: prettier.Options | boolean = true
+) {
+  // Babel collapses newlines all over the place, which messes with the formatting of almost any
+  // code you pass to it. To preserve the formatting, we go through and mark all the empty lines
+  // in the code string *before* transforming it. This allows us to go back through after the
+  // transformation re-insert the empty lines in the correct place relative to the new code that
+  // has been generated.
   code = code.replace(/\n\n+/g, '/* ___NEWLINE___ */\n');
 
-  // Babel visitor to remove leading comments
+  // When removing TS-specific constructs (e.g. interfaces), we want to make sure we also remove
+  // any comments that are associated with those constructs, since otherwise we'll be left with
+  // comments that refer to something that isn't actually there.
+  // Credit to https://github.com/cyco130/detype for figuring out this very useful pattern
   const removeComments: VisitNodeObject<unknown, Node> = {
-    enter(p) {
-      if (!p.node.leadingComments) return;
+    enter(nodePath) {
+      if (!nodePath.node.leadingComments) return;
 
-      for (let i = p.node.leadingComments.length - 1; i >= 0; i--) {
-        const comment = p.node.leadingComments[i];
+      for (let i = nodePath.node.leadingComments.length - 1; i >= 0; i--) {
+        const comment = nodePath.node.leadingComments[i];
 
         if (
           code.slice(comment.end).match(/^\s*\n\s*\n/) ||
@@ -37,7 +46,6 @@ export default async function removeTypes(code: string) {
   };
 
   const transformed = await transformAsync(code, {
-    // retainLines: true,
     plugins: [
       {
         name: 'comment-remover',
@@ -65,8 +73,29 @@ export default async function removeTypes(code: string) {
 
   const fixed = transformed.code.replace(/\/\* ___NEWLINE___ \*\//g, '\n');
 
-  return prettier.format(fixed, {
-    singleQuote: true,
+  // If the user has *explicitly* passed `false` here, it means they do not want us to run Prettier
+  // at all, so we bail here.
+  if (prettierConfig === false) {
+    return fixed;
+  }
+
+  const standardPrettierOptions = {
     parser: 'babel',
-  });
+    singleQuote: true,
+  };
+
+  // If `prettierConfig` is *explicitly* true (as opposed to truthy), it means the user has opted in
+  // to default behavior either explicitly or implicitly. Either way, we run basic Prettier on it.
+  if (prettierConfig === true) {
+    return prettier.format(fixed, standardPrettierOptions);
+  }
+
+  // If we've made it here, the user has passed their own Prettier options so we merge it with ours
+  // and let theirs overwrite any of the default settings.
+  const mergedPrettierOptions = {
+    ...standardPrettierOptions,
+    ...prettierConfig,
+  };
+
+  return prettier.format(fixed, mergedPrettierOptions);
 }
