@@ -1,8 +1,13 @@
 {
-  "name": "ts-be-gone",
+  "name": "remove-types",
   "author": "Chris Freeman",
   "version": "0.0.0",
   "license": "MIT",
+  "keywords": [
+    "typescript",
+    "babel",
+    "types"
+  ],
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "index.d.ts",

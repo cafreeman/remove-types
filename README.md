@@ -1,11 +1,11 @@
-# `ts-be-gone`
+# `remove-types`
 
 A small library for transforming TypeScript code into JavaScript code in the least destructive way possible. This library exports a single function whose purpose is to preserve everything else about the code except for the actual TypeScript syntax itself. As a result, things like decorators and class fields should pass straight through without being transformed in any way.
 
 ## Usage
 
 ```js
-import { removeTypes } from 'ts-be-gone';
+import { removeTypes } from 'remove-types';
 
 const original = `
 type AnimalType = 'cat' | 'dog';
