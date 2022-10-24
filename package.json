@@ -24,6 +24,9 @@
     "dist",
     "src"
   ],
+  "bin":{
+    "remove-types": "./dist/cjs/cli.js"
+  },
   "scripts": {
     "ts:cjs": "tsc -p ts/cjs.tsconfig.json",
     "ts:esm": "tsc -p ts/esm.tsconfig.json",
