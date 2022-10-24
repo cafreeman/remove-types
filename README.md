@@ -59,6 +59,15 @@ class Cat {
 
 - returns `Promise<string>`: a string containing the transformed JavaScript output.
 
+## CLI
+
+Also provided CLI as below:
+
+```sh
+npm i -g remove-types
+remove-types src.ts dest.js
+```
+
 ## Acknowledgements
 
 This library is heavily indebted to [cyco130/detype](https://github.com/cyco130/detype) and began as an extraction and refactor of one of its core functions.
